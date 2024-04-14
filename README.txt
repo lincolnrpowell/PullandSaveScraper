@@ -31,3 +31,7 @@ At this point in the scraper it practically functions the same as the Pull and S
 The only thing this script does that the site doesn't is search both location inventory at once. Ideally future versions
 of this script will allow you to search for specific engines in the inventory by VIN weather that be with an API or a
 python library.
+
+4/13/24
+-Fixed venv issues
+-Added requirements.txt
