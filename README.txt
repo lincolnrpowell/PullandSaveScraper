@@ -35,3 +35,4 @@ python library.
 4/13/24
 -Fixed venv issues
 -Added requirements.txt
+-Deleted the Inventory class and made it a stand_alone function (.make_file())

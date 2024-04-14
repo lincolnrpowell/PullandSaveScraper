@@ -2,86 +2,79 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
-import time
 import os
 
 
 # CREATE CSV FILES OF THE YARD INVENTORY
-class InventoryInit:
-    def __init__(self, location_name, url):
-        # NAME THE OBJ
-        self.name = location_name
-        self.url = url
-        print(f'Initializing request for {self.name} location...\n')
+def make_file(location_name, url):
+    print(f'Initializing request for {location_name} location...\n')
 
-        init_fail = 'Initiation failed!\n'
+    init_fail = 'Initiation failed!\n'
 
-        # CALL REQUEST TO WEBSITE
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/123.0.0.0 Safari/537.36'
-        }
+    # CALL REQUEST TO WEBSITE
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/123.0.0.0 Safari/537.36'
+    }
 
-        response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers)
+    page_count = None
 
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # GET TOTAL TABLE PAGES
+        input_tags = soup.find_all("input", {"class": "form-control"})
+        page_tag = input_tags[1]
+        page_count = int(page_tag.get('data-pagecount'))
+
+
+    else:
+        # GET REQUEST FAILED
+        print(f"{init_fail}Failed to fetch data from the URL:", url,
+              f"\nResponse Status: {response.status_code}\n--------------------")
+
+    # TABLE DATA
+    page_data = []
+    page_index = 0
+    start_index = 1
+
+    # LOOP THROUGH ALL TABLE PAGES
+    print(f'Scraping {page_count} pages from the {location_name} yard site.\nThis may take a moment...\n')
+    while page_count > page_index:
+        url_indx = url + f'?start={start_index}'
+        # SCRAPE TABLE DATA
+        response = requests.get(url_indx, headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
+            tables = soup.find('table', 'table')
+            df1 = pd.read_html(StringIO(str(tables)))
+            out_put = df1[0]
 
-            # GET TOTAL TABLE PAGES
-            input_tags = soup.find_all("input", {"class": "form-control"})
-            page_tag = input_tags[1]
-            page_count = page_tag.get('data-pagecount')
-
-            self.page_count = int(page_count)
-
+            table = out_put[['Row', 'Vin', 'Year', 'Make', 'Model']]
+            page_data.append(table)
+            start_index += 50
+            page_index += 1
         else:
-            # GET REQUEST FAILED
+            # REQUEST FAILED
             print(f"{init_fail}Failed to fetch data from the URL:", url,
                   f"\nResponse Status: {response.status_code}\n--------------------")
+    # ALL DATA
+    yard_inventory = pd.concat(page_data)
 
-        # TABLE DATA
-        page_data = []
-        total_page_index = self.page_count
-        page_index = 0
-        start_index = 1
+    # CREATE A NEW CSV FILE IN DATA_CACHE
+    # ENSURE FOLDER EXISTS
+    if not os.path.exists('data_cache'):
+        os.makedirs('data_cache')
 
-        # LOOP THROUGH ALL TABLE PAGES
-        print(f'Scraping {self.page_count} pages from the {self.name} yard site.\nThis may take a moment...\n')
-        while total_page_index > page_index:
-            url = self.url + f'?start={start_index}'
-            # SCRAPE TABLE DATA
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                tables = soup.find('table', 'table')
-                df1 = pd.read_html(StringIO(str(tables)))
-                out_put = df1[0]
+        # CONSTRUCT FULL FILE PATH
+    file_path = os.path.join('data_cache', f'{location_name}_inventory.csv')
 
-                table = out_put[['Row', 'Vin', 'Year', 'Make', 'Model']]
-                page_data.append(table)
-                start_index += 50
-                page_index += 1
-            else:
-                # REQUEST FAILED
-                print(f"{init_fail}Failed to fetch data from the URL:", url,
-                      f"\nResponse Status: {response.status_code}\n--------------------")
-        # ALL DATA
-        yard_inventory = pd.concat(page_data)
+    # WRITE DATA TO CVS
+    yard_inventory.to_csv(file_path, index=False)
 
-        # CREATE A NEW CSV FILE IN DATA_CACHE
-        # ENSURE FOLDER EXISTS
-        if not os.path.exists('data_cache'):
-            os.makedirs('data_cache')
-
-            # CONSTRUCT FULL FILE PATH
-        file_path = os.path.join('data_cache', f'{self.name}_inventory.csv')
-
-        # WRITE DATA TO CVS
-        yard_inventory.to_csv(file_path, index=False)
-
-        time.sleep(2)
-        print(f'Data written to {self.name}_inventory.csv in data_cache folder.\n{self.name} initiation complete!'
-              f'\n--------------------')
+    print(f'Data written to {location_name}_inventory.csv in data_cache folder.\n{location_name} initiation complete!'
+          f'\n--------------------')
 
 
 class CombinedInventory:

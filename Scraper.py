@@ -4,7 +4,12 @@ import classfile
 # RUN THIS FILE FIRST THING BEFORE SEARCHING THROUGH THE DATA TO ENSURE DATA IS UP-TO-DATE
 
 
-spokane = classfile.InventoryInit('Spokane',
+#spokane = classfile.InventoryInit('Spokane',
+#                              "https://newautopart.net/includes/pullandsave/spokane/yard_locationslist.php")
+#mead = classfile.InventoryInit('Mead',
+#                           "https://newautopart.net/includes/pullandsave/mead/yard_locationslist.php")
+
+classfile.make_file('Spokane',
                               "https://newautopart.net/includes/pullandsave/spokane/yard_locationslist.php")
-mead = classfile.InventoryInit('Mead',
+classfile.make_file('Mead',
                            "https://newautopart.net/includes/pullandsave/mead/yard_locationslist.php")
