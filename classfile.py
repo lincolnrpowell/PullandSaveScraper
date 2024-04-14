@@ -46,7 +46,7 @@ class InventoryInit:
         start_index = 1
 
         # LOOP THROUGH ALL TABLE PAGES
-        print(f'Scraping {self.page_count} pages from the {self.name} yard site...\n')
+        print(f'Scraping {self.page_count} pages from the {self.name} yard site.\nThis may take a moment...\n')
         while total_page_index > page_index:
             url = self.url + f'?start={start_index}'
             # SCRAPE TABLE DATA
