@@ -28,7 +28,6 @@ def make_file(location_name, url):
         page_tag = input_tags[1]
         page_count = int(page_tag.get('data-pagecount'))
 
-
     else:
         # GET REQUEST FAILED
         print(f"{init_fail}Failed to fetch data from the URL:", url,
@@ -42,9 +41,9 @@ def make_file(location_name, url):
     # LOOP THROUGH ALL TABLE PAGES
     print(f'Scraping {page_count} pages from the {location_name} yard site.\nThis may take a moment...\n')
     while page_count > page_index:
-        url_indx = url + f'?start={start_index}'
+        url_index = url + f'?start={start_index}'
         # SCRAPE TABLE DATA
-        response = requests.get(url_indx, headers=headers)
+        response = requests.get(url_index, headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             tables = soup.find('table', 'table')
@@ -59,7 +58,7 @@ def make_file(location_name, url):
             # REQUEST FAILED
             print(f"{init_fail}Failed to fetch data from the URL:", url,
                   f"\nResponse Status: {response.status_code}\n--------------------")
-    # ALL DATA
+    # ALL YARD DATA
     yard_inventory = pd.concat(page_data)
 
     # CREATE A NEW CSV FILE IN DATA_CACHE
@@ -89,76 +88,6 @@ class CombinedInventory:
 
         self.inventory1 = pd.read_csv(file_path1)
         self.inventory2 = pd.read_csv(file_path2)
-
-    # SEARCH BY MAKE
-    def search_make(self, make):
-        if make.upper() == 'CHEVY':
-            make = 'CHEVROLET'
-        elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-            make = 'DATSUN - NISSAN'
-        else:
-            make = make.upper()
-
-        results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
-        results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
-        count1 = results1.shape[0]
-        count2 = results2.shape[0]
-
-        output1 = f'{self.location1} inventory\nFound {count1} instances of {make}\n{results1}'
-        output2 = f'{self.location2} inventory\nFound {count2} instances of {make}\n{results2}'
-
-        if results1.empty and results2.empty:
-            return f'No instances of {make} found in {self.location1} or {self.location2}'
-        elif results1.empty:
-            return f'No instance of the make "{make}" found in {self.location1}\n {output2}'
-        elif results2.empty:
-            return f'{output1}\nNo instance of the make "{make}" found in {self.location2}'
-        else:
-            return f'{output1}\n---------------\n{output2}\n---------------'
-
-    # SEARCH BY MODEL
-    def search_model(self, model):
-        model = model.upper()
-
-        results1 = self.inventory1[self.inventory1['Model'] == f'{model}']
-        results2 = self.inventory2[self.inventory2['Model'] == f'{model}']
-        count1 = results1.shape[0]
-        count2 = results2.shape[0]
-
-        output1 = f'{self.location1} inventory\nFound {count1} instances of {model}\n{results1}'
-        output2 = f'{self.location2} inventory\nFound {count2} instances of {model}\n{results2}'
-
-        if results1.empty and results2.empty:
-            return f'No instances of {model} found in {self.location1} or {self.location2}\n---------------'
-        elif results1.empty:
-            return (f'No instance of the make "{model}" found in {self.location1}\n---------------\n'
-                    f'{output2}\n---------------')
-        elif results2.empty:
-            return (f'{output1}\n---------------\nNo instance of the make "{model}" found in {self.location2}'
-                    f'\n---------------')
-        else:
-            return f'{output1}\n---------------\n{output2}\n---------------'
-
-    def search_year(self, year):
-        year = int(year)
-        results1 = self.inventory1[self.inventory1['Year'] == year]
-        results2 = self.inventory2[self.inventory2['Year'] == year]
-        count1 = results1.shape[0]
-        count2 = results2.shape[0]
-
-        output1 = f'{self.location1} inventory\nFound {count1} instances of {year}\n{results1}'
-        output2 = f'{self.location2} inventory\nFound {count2} instances of {year}\n{results2}'
-
-        if results1.empty and results2.empty:
-            return f'No instances of {year} found in {self.location1} or {self.location2}\n---------------'
-        elif results1.empty:
-            return (f'No instance of the make "{year}" found in {self.location1}\n---------------\n'
-                    f'{output2}\n---------------')
-        elif results2.empty:
-            return (f'{output1}\n---------------\nNo instance of the make "{year}" found in {self.location2}'
-                    f'\n---------------')
-        else:
-            return f'{output1}\n---------------\n{output2}\n---------------'
 
     def search(self, make=None, model=None, year=None):
         if make and model and year:
@@ -258,7 +187,7 @@ class CombinedInventory:
 
             results1 = self.inventory1[(self.inventory1['Year'] == f'{year}') &
                                        (self.inventory1['Model'] == f'{model}')]
-            results2 = self.inventory2[(self.inventory2['year'] == f'{year}') &
+            results2 = self.inventory2[(self.inventory2['Year'] == f'{year}') &
                                        (self.inventory2['Model'] == f'{model}')]
             count1 = results1.shape[0]
             count2 = results2.shape[0]
@@ -276,16 +205,85 @@ class CombinedInventory:
                 return f'{output1}\n---------------\n{output2}\n---------------'
 
         elif make:
-            return self.search_make(make)
+            if make.upper() == 'CHEVY':
+                make = 'CHEVROLET'
+            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
+                make = 'DATSUN - NISSAN'
+            else:
+                make = make.upper()
+
+            results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
+            results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
+            count1 = results1.shape[0]
+            count2 = results2.shape[0]
+
+            output1 = f'{self.location1} inventory\nFound {count1} instances of {make}\n{results1}'
+            output2 = f'{self.location2} inventory\nFound {count2} instances of {make}\n{results2}'
+
+            if results1.empty and results2.empty:
+                return f'No instances of the make {make} found in {self.location1} or {self.location2}'
+            elif results1.empty:
+                return f'No instance of the make "{make}" found in {self.location1}\n {output2}'
+            elif results2.empty:
+                return f'{output1}\nNo instance of the make "{make}" found in {self.location2}'
+            else:
+                return f'{output1}\n---------------\n{output2}\n---------------'
 
         elif model:
-            return self.search_model(model)
+            model = model.upper()
+
+            results1 = self.inventory1[self.inventory1['Model'] == f'{model}']
+            results2 = self.inventory2[self.inventory2['Model'] == f'{model}']
+            count1 = results1.shape[0]
+            count2 = results2.shape[0]
+
+            output1 = f'{self.location1} inventory\nFound {count1} instances of {model}\n{results1}'
+            output2 = f'{self.location2} inventory\nFound {count2} instances of {model}\n{results2}'
+
+            if results1.empty and results2.empty:
+                return (f'No instances of the model {model} found in {self.location1} or {self.location2}\n'
+                        f'---------------')
+            elif results1.empty:
+                return (f'No instance of the model "{model}" found in {self.location1}\n---------------\n'
+                        f'{output2}\n---------------')
+            elif results2.empty:
+                return (f'{output1}\n---------------\nNo instance of the model "{model}" found in {self.location2}'
+                        f'\n---------------')
+            else:
+                return f'{output1}\n---------------\n{output2}\n---------------'
         elif year:
-            return self.search_year(year)
+            year = int(year)
+            results1 = self.inventory1[self.inventory1['Year'] == year]
+            results2 = self.inventory2[self.inventory2['Year'] == year]
+            count1 = results1.shape[0]
+            count2 = results2.shape[0]
+
+            output1 = f'{self.location1} inventory\nFound {count1} instances of {year}\n{results1}'
+            output2 = f'{self.location2} inventory\nFound {count2} instances of {year}\n{results2}'
+
+            if results1.empty and results2.empty:
+                return f'No instances of the year {year} found in {self.location1} or {self.location2}\n---------------'
+            elif results1.empty:
+                return (f'No instance of the year "{year}" found in {self.location1}\n---------------\n'
+                        f'{output2}\n---------------')
+            elif results2.empty:
+                return (f'{output1}\n---------------\nNo instance of the year "{year}" found in {self.location2}'
+                        f'\n---------------')
+            else:
+                return f'{output1}\n---------------\n{output2}\n---------------'
 
         else:
             return (f'{self.location1} inventory\n{self.inventory1}\n---------------\n{self.location2} inventory'
                     f'\n{self.inventory2}')
 
-    def search_engine(self, size, make):
+    # SEARCH THROUGH INVENTORY FOR ENGINES BY DISPLACEMENT IN LITERS
+    def search_engine_size(self, size):
+        pass
+
+    # SEARCH THROUGH INVENTORY FOR ENGINE BY NUMBER OF CYLINDERS
+    def search_engine_cyl(self, cylnum):
+        pass
+
+    # SEARCH THROUGH INVENTORY FOR ENGINE BY VEHICLE MAKE AND ENGINE DISPLACEMENT OR CYLINDER NUMBER
+    def search_engine_make(self, make, size=None, sylnum=None):
         pass
