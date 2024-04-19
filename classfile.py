@@ -314,6 +314,8 @@ class CombinedInventory:
         else:
             make = make.upper()
 
+        size = float(size)
+
         results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
         results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
 
