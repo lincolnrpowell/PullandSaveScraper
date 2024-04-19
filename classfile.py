@@ -76,6 +76,30 @@ def make_file(location_name, url):
           f'\n--------------------')
 
 
+# VIN DECODE FUNCTION (NHTSA API)
+def vin_decode(vin):
+    url = f'https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=json'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if 'Results' in data:
+            results = data['Results']
+            return results
+        else:
+            return 'VIN decoding failed'
+    else:
+        return f'Error: Failed to fetch data from NHTSA API\nError code: {response.status_code}'
+
+# GETS ENGINE DISPLACEMENT IN LITERS FROM VIN
+def get_displacement(vin):
+    results = vin_decode(vin)
+    for result in results:
+        if 'Variable' in result and 'Value' in result:
+            if result['Variable'] == 'Displacement (L)':
+                engine_displacement = result['Value']
+                return engine_displacement
+
+
 class CombinedInventory:
     def __init__(self, file1, file2):
         self.file1 = file1
@@ -276,14 +300,38 @@ class CombinedInventory:
             return (f'{self.location1} inventory\n{self.inventory1}\n---------------\n{self.location2} inventory'
                     f'\n{self.inventory2}')
 
-    # SEARCH THROUGH INVENTORY FOR ENGINES BY DISPLACEMENT IN LITERS
-    def search_engine_size(self, size):
-        pass
-
-    # SEARCH THROUGH INVENTORY FOR ENGINE BY NUMBER OF CYLINDERS
-    def search_engine_cyl(self, cylnum):
-        pass
-
     # SEARCH THROUGH INVENTORY FOR ENGINE BY VEHICLE MAKE AND ENGINE DISPLACEMENT OR CYLINDER NUMBER
-    def search_engine_make(self, make, size=None, sylnum=None):
-        pass
+    def search_engine(self, make, size):
+        if make.upper() == 'CHEVY':
+            make = 'CHEVROLET'
+        elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
+            make = 'DATSUN - NISSAN'
+        else:
+            make = make.upper()
+        size = str(size)
+
+        results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
+        results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
+
+        results1['Engine'] = results1['Vin'].apply(get_displacement)
+        results2['Engine'] = results2['Vin'].apply(get_displacement)
+
+        out_putdf1 = results1[results1['Engine'] == f'{size}']
+        out_putdf2 = results2[results2['Engine'] == f'{size}']
+        count1 = out_putdf1.shape[0]
+        count2 = out_putdf2.shape[0]
+
+        out_put1 = f'{self.location1} inventory\nFound {count1} instances of {make} {size}L\n{out_putdf1}'
+        out_put2 = f'{self.location2} inventory\nFound {count2} instances of {make} {size}L\n{out_putdf2}'
+
+        if out_putdf1.empty and out_putdf2.empty:
+            return (f'No instances of the year {make} {size}L found in {self.location1} or {self.location2}'
+                    f'\n---------------')
+        elif out_putdf1.empty:
+            return (f'No instances of the year {make} {size}L found in {self.location1}\n---------------\n{out_put2}'
+                    f'\n---------------')
+        elif out_putdf2.empty:
+            return (f'{out_put1}\n---------------\nNo instances of the year {make} {size}L found in {self.location2}'
+                    f'\n---------------')
+        else:
+            return f'{out_put1}\n---------------\n{out_put2}\n---------------'
