@@ -10,6 +10,7 @@ def make_file(location_name, url):
     print(f'Initializing request for {location_name} location...\n')
 
     init_fail = 'Initiation failed!\n'
+    seperator = '\n---------------\n'
 
     # CALL REQUEST TO WEBSITE
     headers = {
@@ -31,7 +32,7 @@ def make_file(location_name, url):
     else:
         # GET REQUEST FAILED
         print(f"{init_fail}Failed to fetch data from the URL:", url,
-              f"\nResponse Status: {response.status_code}\n--------------------")
+              f"\nResponse Status: {response.status_code}{seperator}")
 
     # TABLE DATA
     page_data = []
@@ -57,7 +58,7 @@ def make_file(location_name, url):
         else:
             # REQUEST FAILED
             print(f"{init_fail}Failed to fetch data from the URL:", url,
-                  f"\nResponse Status: {response.status_code}\n--------------------")
+                  f"\nResponse Status: {response.status_code}{seperator}")
     # ALL YARD DATA
     yard_inventory = pd.concat(page_data)
 
@@ -73,7 +74,7 @@ def make_file(location_name, url):
     yard_inventory.to_csv(file_path, index=False)
 
     print(f'Data written to {location_name}_inventory.csv in data_cache folder.\n{location_name} initiation complete!'
-          f'\n--------------------')
+          f'{seperator}')
 
 
 # VIN DECODE FUNCTION (NHTSA API)
@@ -90,6 +91,7 @@ def vin_decode(vin):
     else:
         return f'Error: Failed to fetch data from NHTSA API\nError code: {response.status_code}'
 
+
 # GETS ENGINE DISPLACEMENT IN LITERS FROM VIN
 def get_displacement(vin):
     results = vin_decode(vin)
@@ -97,7 +99,9 @@ def get_displacement(vin):
         if 'Variable' in result and 'Value' in result:
             if result['Variable'] == 'Displacement (L)':
                 engine_displacement = result['Value']
-                return engine_displacement
+                if engine_displacement is None:
+                    engine_displacement = 0.0
+                return round(float(engine_displacement), 1)
 
 
 class CombinedInventory:
@@ -112,6 +116,8 @@ class CombinedInventory:
 
         self.inventory1 = pd.read_csv(file_path1)
         self.inventory2 = pd.read_csv(file_path2)
+
+        self.seperator = '\n---------------\n'
 
     def search(self, make=None, model=None, year=None):
         if make and model and year:
@@ -139,11 +145,11 @@ class CombinedInventory:
             if results1.empty and results2.empty:
                 return f'No instances of {year} {make} {model} found in {self.location1} or {self.location2}'
             elif results1.empty:
-                return f'No instance of {year} {make} {model} found in {self.location1}\n---------------\n{output2}'
+                return f'No instance of {year} {make} {model} found in {self.location1}{self.seperator}{output2}'
             elif results2.empty:
-                return f'{output1}\n---------------\nNo instances of {year} {make} {model} found in {self.location2}'
+                return f'{output1}{self.seperator}No instances of {year} {make} {model} found in {self.location2}'
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         elif make and model:
             if make.upper() == 'CHEVY':
@@ -168,11 +174,11 @@ class CombinedInventory:
             if results1.empty and results2.empty:
                 return f'No instances of {make} {model} found in {self.location1} or {self.location2}'
             elif results1.empty:
-                return f'No instance of {make} {model} found in {self.location1}\n---------------\n{output2}'
+                return f'No instance of {make} {model} found in {self.location1}{self.seperator}{output2}'
             elif results2.empty:
-                return f'{output1}\n---------------\nNo instances of {make} {model} found in {self.location2}'
+                return f'{output1}{self.seperator}No instances of {make} {model} found in {self.location2}'
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         elif make and year:
             if make.upper() == 'CHEVY':
@@ -197,13 +203,13 @@ class CombinedInventory:
             if results1.empty and results2.empty:
                 return f'No instances of {year} {make} found in {self.location1} or {self.location2}'
             elif results1.empty:
-                return (f'No instance of {year} {make} found in {self.location1}\n---------------\n{output2}'
-                        f'\n---------------')
+                return (f'No instance of {year} {make} found in {self.location1}{self.seperator}{output2}'
+                        f'{self.seperator}')
             elif results2.empty:
-                return (f'{output1}\n---------------\nNo instances of {year} {make} found in {self.location2}'
-                        f'\n---------------')
+                return (f'{output1}{self.seperator}No instances of {year} {make} found in {self.location2}'
+                        f'{self.seperator}')
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         elif model and year:
             model = model.upper()
@@ -222,11 +228,11 @@ class CombinedInventory:
             if results1.empty and results2.empty:
                 return f'No instances of {year} {model} found in {self.location1} or {self.location2}'
             elif results1.empty:
-                return f'No instance of {year} {model} found in {self.location1}\n---------------\n{output2}'
+                return f'No instance of {year} {model} found in {self.location1}{self.seperator}{output2}'
             elif results2.empty:
-                return f'{output1}\n---------------\nNo instances of {year} {model} found in {self.location2}'
+                return f'{output1}{self.seperator}No instances of {year} {model} found in {self.location2}'
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         elif make:
             if make.upper() == 'CHEVY':
@@ -251,7 +257,7 @@ class CombinedInventory:
             elif results2.empty:
                 return f'{output1}\nNo instance of the make "{make}" found in {self.location2}'
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         elif model:
             model = model.upper()
@@ -265,16 +271,15 @@ class CombinedInventory:
             output2 = f'{self.location2} inventory\nFound {count2} instances of {model}\n{results2}'
 
             if results1.empty and results2.empty:
-                return (f'No instances of the model {model} found in {self.location1} or {self.location2}\n'
-                        f'---------------')
+                return f'No instances of the model {model} found in {self.location1} or {self.location2}{self.seperator}'
             elif results1.empty:
-                return (f'No instance of the model "{model}" found in {self.location1}\n---------------\n'
-                        f'{output2}\n---------------')
+                return (f'No instance of the model "{model}" found in {self.location1}{self.seperator}'
+                        f'{output2}{self.seperator}')
             elif results2.empty:
-                return (f'{output1}\n---------------\nNo instance of the model "{model}" found in {self.location2}'
-                        f'\n---------------')
+                return (f'{output1}{self.seperator}No instance of the model "{model}" found in {self.location2}'
+                        f'{self.seperator}')
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif year:
             year = int(year)
             results1 = self.inventory1[self.inventory1['Year'] == year]
@@ -286,18 +291,18 @@ class CombinedInventory:
             output2 = f'{self.location2} inventory\nFound {count2} instances of {year}\n{results2}'
 
             if results1.empty and results2.empty:
-                return f'No instances of the year {year} found in {self.location1} or {self.location2}\n---------------'
+                return f'No instances of the year {year} found in {self.location1} or {self.location2}{self.seperator}'
             elif results1.empty:
-                return (f'No instance of the year "{year}" found in {self.location1}\n---------------\n'
-                        f'{output2}\n---------------')
+                return (f'No instance of the year "{year}" found in {self.location1}{self.seperator}'
+                        f'{output2}{self.seperator}')
             elif results2.empty:
-                return (f'{output1}\n---------------\nNo instance of the year "{year}" found in {self.location2}'
-                        f'\n---------------')
+                return (f'{output1}{self.seperator}No instance of the year "{year}" found in {self.location2}'
+                        f'{self.seperator}')
             else:
-                return f'{output1}\n---------------\n{output2}\n---------------'
+                return f'{output1}{self.seperator}{output2}{self.seperator}'
 
         else:
-            return (f'{self.location1} inventory\n{self.inventory1}\n---------------\n{self.location2} inventory'
+            return (f'{self.location1} inventory\n{self.inventory1}{self.seperator}{self.location2} inventory'
                     f'\n{self.inventory2}')
 
     # SEARCH THROUGH INVENTORY FOR ENGINE BY VEHICLE MAKE AND ENGINE DISPLACEMENT OR CYLINDER NUMBER
@@ -308,30 +313,35 @@ class CombinedInventory:
             make = 'DATSUN - NISSAN'
         else:
             make = make.upper()
-        size = str(size)
 
         results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
         results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
 
-        results1['Engine'] = results1['Vin'].apply(get_displacement)
-        results2['Engine'] = results2['Vin'].apply(get_displacement)
+        df_copy1 = results1.copy()
+        df_copy2 = results2.copy()
 
-        out_putdf1 = results1[results1['Engine'] == f'{size}']
-        out_putdf2 = results2[results2['Engine'] == f'{size}']
+        print(f'Sending {results1.shape[0] + results2.shape[0]} items to the NHTSA API\nThis may take a few moments...'
+              f'\n---------------')
+
+        df_copy1['Engine'] = df_copy1['Vin'].apply(get_displacement)
+        df_copy2['Engine'] = df_copy2['Vin'].apply(get_displacement)
+
+        out_putdf1 = df_copy1[df_copy1['Engine'] == size]
+        out_putdf2 = df_copy2[df_copy2['Engine'] == size]
         count1 = out_putdf1.shape[0]
         count2 = out_putdf2.shape[0]
 
         out_put1 = f'{self.location1} inventory\nFound {count1} instances of {make} {size}L\n{out_putdf1}'
         out_put2 = f'{self.location2} inventory\nFound {count2} instances of {make} {size}L\n{out_putdf2}'
 
-        if out_putdf1.empty and out_putdf2.empty:
-            return (f'No instances of the year {make} {size}L found in {self.location1} or {self.location2}'
-                    f'\n---------------')
-        elif out_putdf1.empty:
-            return (f'No instances of the year {make} {size}L found in {self.location1}\n---------------\n{out_put2}'
-                    f'\n---------------')
-        elif out_putdf2.empty:
-            return (f'{out_put1}\n---------------\nNo instances of the year {make} {size}L found in {self.location2}'
-                    f'\n---------------')
+        if count1 == 0 and count2 == 0:
+            return (f'No instances of a {make} {size}L found in {self.location1} or {self.location2}'
+                    f'{self.seperator}')
+        elif count1 ==0 :
+            return (f'No instances of a {make} {size}L found in {self.location1}{self.seperator}{out_put2}'
+                    f'{self.seperator}')
+        elif count2 == 0:
+            return (f'{out_put1}{self.seperator}No instances of a {make} {size}L found in {self.location2}'
+                    f'{self.seperator}')
         else:
-            return f'{out_put1}\n---------------\n{out_put2}\n---------------'
+            return f'{out_put1}{self.seperator}{out_put2}{self.seperator}'

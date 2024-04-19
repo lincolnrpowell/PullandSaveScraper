@@ -2,11 +2,11 @@ The ultimate goal of this application is to use web scraping and a VIN decode AP
 the inventory of the Spokane and Mead Pull and Save locations to show if they have a vehicle in both of their
 inventories with particular attributes.
 
-In its current form you can search the inventory by year, make, model, and engine by manufacturer. It will return at the
-row at the yard the vehicle is in along with other useful data like the VIN.
+In its current form you can search the inventory by year, make, and model. Also by engine by manufacturer. It will
+return at the row at the yard the vehicle is in along with other useful data like the VIN.
 
 HOW TO USE:
-Ensure the packages from the 'requirements.txt' file have been installed. Then r]un the "Scraper.py" file to update the
+Ensure the packages from the 'requirements.txt' file have been installed. Then run the "Scraper.py" file to update the
 inventory in the data_cache folder and to localize the data. Then go to main.py, make sure the
 classfile.CombineInventory class is set to a variable (i.e. 'inventory'). Then use the functions from the
 CombinedInventory class in a print statement to search through the data (i.e. print(inventory.search())
@@ -41,5 +41,4 @@ python library.
 -Updated the 'How to use' and 'CombinedInventory' sections of the READ ME
 
 4/18/24
--Added the .search_engine function using the NHTSA API to decode the vins
-*Has a 'SettingWithCopyWarning' when using .search_engine, however it still out puts the results
+-Added the .search_engine function using the NHTSA API to decode the vins for the engine displacement in liters
