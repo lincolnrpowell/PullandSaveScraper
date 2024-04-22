@@ -1,8 +1,12 @@
-#FILE FOR TESTING CODE
+# FILE FOR TESTING CODE
 
 import requests
 import os
 import pandas as pd
+
+file_path = os.path.join('data_cache', 'Spokane_inventory.csv')
+
+test_inventory = pd.read_csv(file_path)
 
 def vin_decode(vin):
     url = f'https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=json'
@@ -27,17 +31,13 @@ def get_displacement(vin):
                     engine_displacement = 0.0
                 return round(float(engine_displacement), 1)
 
+def search_year(year):
+    pass
+def serch_make(make):
+    pass
+def search_model(model):
+    pass
+def search_engine(liters):
+    pass
 
 
-
-file_path = os.path.join('data_cache', 'Spokane_inventory.csv')
-
-inventory = pd.read_csv(file_path)
-
-subaru_df = inventory[inventory['Make'] == 'SUBARU']
-
-df_copy = subaru_df.copy()
-
-df_copy['Engine'] = df_copy['Vin'].apply(get_displacement)
-
-print(df_copy[df_copy['Engine'] == 3.0])

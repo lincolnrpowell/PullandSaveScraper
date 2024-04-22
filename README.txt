@@ -6,7 +6,7 @@ In its current form you can search the inventory by year, make, and model. Also 
 return at the row at the yard the vehicle is in along with other useful data like the VIN.
 
 HOW TO USE:
-Ensure the packages from the 'requirements.txt' file have been installed. Then run the "Scraper.py" file to update the
+Ensure the packages from the 'requirements.txt' file have been installed. Then run the "scraper.py" file to update the
 inventory in the data_cache folder and to localize the data. Then go to main.py, make sure the
 classfile.CombineInventory class is set to a variable (i.e. 'inventory'). Then use the functions from the
 CombinedInventory class in a print statement to search through the data (i.e. print(inventory.search())
