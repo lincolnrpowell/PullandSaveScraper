@@ -2,26 +2,14 @@ The ultimate goal of this application is to use web scraping and a VIN decode AP
 the inventory of the Spokane and Mead Pull and Save locations to show if they have a vehicle in both of their
 inventories with particular attributes.
 
-In its current form you can search the inventory by year, make, and model. Also by engine by manufacturer. It will
+In its current form you can search the inventory by year, make, and model. Also, engine by manufacturer. It will
 return at the row at the yard the vehicle is in along with other useful data like the VIN.
 
 HOW TO USE:
-Ensure the packages from the 'requirements.txt' file have been installed. Then run the "scraper.py" file to update the
-inventory in the data_cache folder and to localize the data. Then go to main.py, make sure the
-classfile.CombineInventory class is set to a variable (i.e. 'inventory'). Then use the functions from the
-CombinedInventory class in a print statement to search through the data (i.e. print(inventory.search())
-
-CombinedInventory functions:
-
-.search()
-This function can be run with up to three arguments(make, model, year) or none at all. If run without any arguments it
-will return the entire inventory of both yard locations. The function has a default argument of 'None' for year, make
-and model. The 'make' and 'model' arguments must be of the string type. The year argument can be either an integer
-or string.
-
-.search_engine()
-This function takes two string arguments of 'make'(manufacturer) and 'size' (engine displacement in liters). It returns
-every inventory instance of that manufacturer's engine displacement.
+Run the main.py file to open the UI. Then click "File" and select "Update Inventory" to scrape the latest data from the
+Pull and save websites. Then input your desired arguments into the Year, Make, Model, and/or Engine entry boxes to
+search through the inventory. Note that the "Engine" parameter needs at least a "Make" parameter along with it to work.
+Hit the "Clear" button to clear the search parameters and results display.
 
 Updates:
 
@@ -42,3 +30,10 @@ python library.
 
 4/18/24
 -Added the .search_engine function using the NHTSA API to decode the vins for the engine displacement in liters
+
+4/22/24
+-Created a UI to input search parameters that will display the data to the console
+
+4/25/24
+-Added live updates to the text display while the "Update Inventory" function is running and the API is being called.
+-Updated the UI
