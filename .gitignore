@@ -1,4 +1,5 @@
-/.idea
-/vnev
-/data_cache
-/__pycache__
+/.idea/
+/vnev/
+/__pycache__/
+/data_cache/
+/ruff.toml

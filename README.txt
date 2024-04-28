@@ -1,13 +1,15 @@
-The ultimate goal of this application is to use web scraping and a VIN decode API or VIN python library to go through
-the inventory of the Spokane and Mead Pull and Save locations to show if they have a vehicle in both of their
+The ultimate goal of this application is to use web scraping and a VIN decode
+API or VIN python library to go through the inventory of the Spokane and Mead
+Pull and Save locations to show if they have a vehicle in both of their
 inventories with particular attributes.
 
-In its current form you can search the inventory by year, make, and model. Also, engine by manufacturer. It will
-return at the row at the yard the vehicle is in along with other useful data like the VIN.
+In its current form you can search the inventory by year, make, and model.
+Also, engine by manufacturer. It will return at the row at the yard the vehicle
+is in along with other useful data like the VIN.
 
 HOW TO USE:
-Run the main.py file to open the UI. Then click "File" and select "Update Inventory" to scrape the latest data from the
-Pull and save websites. Then input your desired arguments into the Year, Make, Model, and/or Engine entry boxes to
+Run the main.py file to open the UI. Then click "File" and select "Update
+Inventory" to scrape the latest data from the Pull and save websites. Then input your desired arguments into the Year, Make, Model, and/or Engine entry boxes to
 search through the inventory. Note that the "Engine" parameter needs at least a "Make" parameter along with it to work.
 Hit the "Clear" button to clear the search parameters and results display.
 
