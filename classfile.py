@@ -7,6 +7,7 @@ import os
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import messagebox
+import tkinter.scrolledtext as scrolledtext
 
 
 # VIN DECODE FUNCTION (NHTSA API)
@@ -54,9 +55,10 @@ class App(ctk.CTk):
         # Main setup
         super().__init__()
         self.title('P&S Inventory Search')
-        self.geometry('505x600')
-        self.minsize(505, 600)
-        ctk.set_appearance_mode('dark')
+        self.geometry('520x600')
+        self.minsize(520, 600)
+        self.appearance = 'dark'
+        ctk.set_appearance_mode(f'{self.appearance}')
         ctk.set_default_color_theme('dark-blue')
 
         self.how_to_use = ('How to use:'
@@ -87,8 +89,35 @@ class App(ctk.CTk):
                                    command=self.how_to_use_func
                                    )
         self.file_menu.add_separator()
-        self.file_menu.add_command(label="Close Program", command=exit)
-        self.menubar.add_cascade(menu=self.file_menu, label='File')
+        self.file_menu.add_command(label="Close",
+                                   command=exit
+                                   )
+        self.menubar.add_cascade(menu=self.file_menu,
+                                 label='File'
+                                 )
+        self.view_menu = tk.Menu(self.menubar,
+                                 tearoff=0,
+                                 bg='#333333',
+                                 fg='white'
+                                 )
+        self.theme_menu = tk.Menu(self.view_menu,
+                                  tearoff=0,
+                                  bg='#333333',
+                                  fg='white'
+                                  )
+        self.menubar.add_cascade(menu=self.view_menu,
+                                 label='View'
+                                 )
+        self.view_menu.add_cascade(menu=self.theme_menu,
+                                   label='Change theme'
+                                   )
+        self.theme_menu.add_command(label='Dark theme',
+                                    command=self.dark_theme
+                                    )
+        self.theme_menu.add_separator()
+        self.theme_menu.add_command(label='Light theme',
+                                    command=self.light_theme
+                                    )
         self.config(menu=self.menubar)
 
         # Create grid
@@ -97,7 +126,7 @@ class App(ctk.CTk):
 
         # Labels
         search_label = ctk.CTkLabel(self,
-                                    text="Search Pull and Save Inventory",
+                                    text="Pull and Save Inventory Search",
                                     font=("Consolas", 18)
                                     )
         search_label.grid(row=0,
@@ -204,7 +233,7 @@ class App(ctk.CTk):
                                )
 
         # Search display
-        self.text_display = tk.Text(self)
+        self.text_display = scrolledtext.ScrolledText(self)
         self.text_display.config(font=('Consolas', 12),
                                  background='#333333',
                                  foreground='white'
@@ -221,6 +250,38 @@ class App(ctk.CTk):
 
         # Run
         self.mainloop()
+
+    def dark_theme(self):
+        ctk.set_appearance_mode('dark')
+        self.text_display.config(font=('Consolas', 12),
+                                 bg='#333333',
+                                 fg='white'
+                                 )
+        self.file_menu.config(bg='#333333',
+                              fg='white'
+                              )
+        self.view_menu.config(bg='#333333',
+                              fg='white'
+                              )
+        self.theme_menu.config(bg='#333333',
+                               fg='white'
+                               )
+
+    def light_theme(self):
+        ctk.set_appearance_mode('light')
+        self.text_display.config(font=('Consolas', 12),
+                                 bg='white',
+                                 fg='black'
+                                 )
+        self.file_menu.config(bg='white',
+                              fg='black'
+                              )
+        self.view_menu.config(bg='white',
+                              fg='black'
+                              )
+        self.theme_menu.config(bg='white',
+                               fg='black'
+                               )
 
     def search_button_fuc(self):
         threading.Thread(target=self.search_inventory).start()
@@ -344,9 +405,9 @@ class App(ctk.CTk):
         self.write_to_display('INVENTORY UPDATE FINISHED!')
 
     def search_inventory(self):
-        combined_inventory = CombinedInventory('Spokane_inventory.csv',
-                                               'Mead_inventory.csv'
-                                               )
+        combined_inventory = CombinedInventory(
+            'Spokane_inventory.csv', 'Mead_inventory.csv'
+        )
         year_param = None
         make_param = None
         model_param = None
@@ -369,7 +430,8 @@ class App(ctk.CTk):
                 'Calling NHTSA API\nThis may take a few moments...'
             )
 
-        results = combined_inventory.search(year=year_param, make=make_param,
+        results = combined_inventory.search(year=year_param,
+                                            make=make_param,
                                             model=model_param,
                                             liters=liters_param
                                             )
@@ -424,16 +486,21 @@ class CombinedInventory:
         self.seperator = '\n---------------\n'
 
     def search(self, make=None, model=None, year=None, liters=None):
-        if make and model and year and liters:
+        if make:
             if make.upper() == 'CHEVY':
                 make = 'CHEVROLET'
             elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
                 make = 'DATSUN - NISSAN'
             else:
                 make = make.upper()
+        if model:
             model = model.upper()
-            year = int(year)
+        if liters:
             liters = float(liters)
+        if year:
+            year = int(year)
+
+        if make and model and year and liters:
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Model'] == f'{model}') &
@@ -484,14 +551,6 @@ class CombinedInventory:
             else:
                 return f'{out_put1}{self.seperator}{out_put2}{self.seperator}'
         elif make and model and liters:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-            model = model.upper()
-            liters = float(liters)
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Model'] == f'{model}')
@@ -545,14 +604,6 @@ class CombinedInventory:
             else:
                 return f'{out_put1}{self.seperator}{out_put2}{self.seperator}'
         elif make and year and liters:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-            year = int(year)
-            liters = float(liters)
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Year'] == year)
@@ -604,13 +655,6 @@ class CombinedInventory:
             else:
                 return f'{out_put1}{self.seperator}{out_put2}{self.seperator}'
         elif make and liters:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-                liters = float(liters)
             results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
             results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
             df_copy1 = results1.copy()
@@ -661,14 +705,6 @@ class CombinedInventory:
         elif year and liters:
             return 'Invalid search parameters'
         elif make and model and year:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-            model = model.upper()
-            year = int(year)
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Model'] == f'{model}') &
@@ -707,13 +743,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif make and model:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-            model = model.upper()
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Model'] == f'{model}')
@@ -750,13 +779,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif make and year:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
-            year = int(year)
             results1 = self.inventory1[
                 (self.inventory1['Make'] == f'{make}') &
                 (self.inventory1['Year'] == year)
@@ -793,8 +815,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif model and year:
-            model = model.upper()
-            year = int(year)
             results1 = self.inventory1[
                 (self.inventory1['Year'] == f'{year}') &
                 (self.inventory1['Model'] == f'{model}')
@@ -831,12 +851,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif make:
-            if make.upper() == 'CHEVY':
-                make = 'CHEVROLET'
-            elif make.upper() == 'NISSAN' or make.upper() == 'DATSUN':
-                make = 'DATSUN - NISSAN'
-            else:
-                make = make.upper()
             results1 = self.inventory1[self.inventory1['Make'] == f'{make}']
             results2 = self.inventory2[self.inventory2['Make'] == f'{make}']
             count1 = results1.shape[0]
@@ -867,7 +881,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif model:
-            model = model.upper()
             results1 = self.inventory1[self.inventory1['Model'] == f'{model}']
             results2 = self.inventory2[self.inventory2['Model'] == f'{model}']
             count1 = results1.shape[0]
@@ -899,7 +912,6 @@ class CombinedInventory:
             else:
                 return f'{output1}{self.seperator}{output2}{self.seperator}'
         elif year:
-            year = int(year)
             results1 = self.inventory1[self.inventory1['Year'] == year]
             results2 = self.inventory2[self.inventory2['Year'] == year]
             count1 = results1.shape[0]
