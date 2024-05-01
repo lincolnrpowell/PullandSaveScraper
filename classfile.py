@@ -112,11 +112,11 @@ class App(ctk.CTk):
                                    label='Change theme'
                                    )
         self.theme_menu.add_command(label='Dark theme',
-                                    command=self.dark_theme
+                                    command=self.dark_theme_button_func
                                     )
         self.theme_menu.add_separator()
         self.theme_menu.add_command(label='Light theme',
-                                    command=self.light_theme
+                                    command=self.light_theme_button_func
                                     )
         self.config(menu=self.menubar)
 
@@ -250,6 +250,12 @@ class App(ctk.CTk):
 
         # Run
         self.mainloop()
+
+    def dark_theme_button_func(self):
+        threading.Thread(target=self.dark_theme).start()
+
+    def light_theme_button_func(self):
+        threading.Thread(target=self.light_theme).start()
 
     def dark_theme(self):
         ctk.set_appearance_mode('dark')
