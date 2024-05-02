@@ -63,14 +63,20 @@ class App(ctk.CTk):
 
         self.how_to_use = ('How to use:'
                            '\n\n-Click File > Update Inventory... to get '
-                           'latest yard inventory'
-                           '\n-Enter search parameters into the input fields '
-                           'then click "Search"'
-                           '\n-Results will display here'
+                           'latest yard inventory.'
+                           '\n-Enter search parameters into the input fields, '
+                           'then click Search.'
+                           '\n-Results will display in this text box.'
+                           '\n-If searching for an Engine, please provide at'
+                           'least a "Make"\nparameter. The more parameters '
+                           'that are entered, the faster the API call will be.'
                            '\n-CLick the "Clear" button to clear entry '
-                           'fields and search display'
-                           '\n\nNote: "Engine(L)" needs at least a "Make" '
-                           'parameter to function'
+                           'fields and search display.'
+                           '\n\nNote:'
+                           '\nThe results are only as accurate as the info '
+                           'provided by the Pull\nand Save websites and the '
+                           'NHSTA API. Some search results may not be\ntruly '
+                           'accurate.'
                            )
 
         # Menu bar
@@ -90,7 +96,7 @@ class App(ctk.CTk):
                                    )
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Close",
-                                   command=exit
+                                   command=self.destroy
                                    )
         self.menubar.add_cascade(menu=self.file_menu,
                                  label='File'
@@ -411,38 +417,45 @@ class App(ctk.CTk):
         self.write_to_display('INVENTORY UPDATE FINISHED!')
 
     def search_inventory(self):
-        combined_inventory = CombinedInventory(
-            'Spokane_inventory.csv', 'Mead_inventory.csv'
-        )
-        year_param = None
-        make_param = None
-        model_param = None
-        liters_param = None
-        if self.year_entry.get():
-            year_param = self.year_entry.get()
-        if self.make_entry.get():
-            make_param = self.make_entry.get()
-        if self.model_entry.get():
-            model_param = self.model_entry.get()
-        if self.engine_entry.get():
-            liters_param = self.engine_entry.get()
-        if liters_param and make_param is None:
-            messagebox.showinfo(
-                title="Invalid search",
-                message='Must have a "Make" input to search for Engine'
+        # Check to see if the inventory has been scraped
+        if not os.path.exists('data_cache'):
+            no_data = ('Data not yet scraped!\nPlease update '
+                       'the inventory before continuing.')
+            self.update_display(no_data)
+            print(no_data)
+        else:
+            combined_inventory = CombinedInventory(
+                'Spokane_inventory.csv', 'Mead_inventory.csv'
             )
-        if liters_param and make_param:
-            self.update_display(
-                'Calling NHTSA API\nThis may take a few moments...'
-            )
+            year_param = None
+            make_param = None
+            model_param = None
+            liters_param = None
+            if self.year_entry.get():
+                year_param = self.year_entry.get()
+            if self.make_entry.get():
+                make_param = self.make_entry.get()
+            if self.model_entry.get():
+                model_param = self.model_entry.get()
+            if self.engine_entry.get():
+                liters_param = self.engine_entry.get()
+            if liters_param and make_param is None:
+                messagebox.showinfo(
+                    title="Invalid search",
+                    message='Must have a "Make" input to search for Engine'
+                )
+            if liters_param and make_param:
+                self.update_display(
+                    'Calling NHTSA API\nThis may take a few moments...'
+                )
 
-        results = combined_inventory.search(year=year_param,
-                                            make=make_param,
-                                            model=model_param,
-                                            liters=liters_param
-                                            )
-        self.update_display(results)
-        print(results)
+            results = combined_inventory.search(year=year_param,
+                                                make=make_param,
+                                                model=model_param,
+                                                liters=liters_param
+                                                )
+            self.update_display(results)
+            print(results)
 
     def update_display(self, content):
         self.text_display.config(state=tk.NORMAL)
