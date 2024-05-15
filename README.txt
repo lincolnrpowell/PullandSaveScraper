@@ -20,16 +20,23 @@ Also, engine by manufacturer. It will return at the row at the yard the vehicle
 is in along with other useful data like the VIN.
 
 HOW TO USE:
-Run the main.py file to open the User Interface. Then click "File" and select
-"Update Inventory" to scrape the latest data from the Pull and save websites.
-Then input your desired arguments into the Year, Make, Model, Liters, and/or
-Cylinders entry boxes to search through the inventory. Note that the "Engine"
-parameter needs at least a "Make" parameter input along with it to work.
+Install the packages from the "requirements.txt" folder then run the main.py
+file to open the User Interface. Then click "File" and select "Update
+Inventory" to scrape the latest data from the Pull and save websites. Then
+input your desired arguments into the Year, Make, Model, Liters, and/or
+Cylinders entry boxes to search through the inventory. Note that the "Liters"
+and "Cylinders" parameters needs at least a "Make" parameter input along with
+it to work.
 
 To change the theme of the UI, goto View > Change theme and select between dark
 theme and light theme.(This feature is currently not working)
 
 Updates:
+
+5/15/24
+-Revised README.txt
+-Adjusted the display tables
+-Made the theme changes functional
 
 5/14/24
 -GUI updated

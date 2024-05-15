@@ -79,6 +79,8 @@ class App(ctk.CTk):
         ctk.set_default_color_theme('dark-blue')
 
         # just so my code isn't mad at me
+        self.md_frame = None
+        self.spk_frame = None
         self.srch_frame = None
         self.search_btn = None
         self.cylinders_entry = None
@@ -98,26 +100,30 @@ class App(ctk.CTk):
         self.how_to_use = ('How to use:'
                            '\n-Click File > Update Inventory to get the '
                            '\nlatest yard inventory.'
-                           '\n-Enter search parameters into the input '
-                           '\nfields,'
+                           '\n-Enter search parameters into the input fields,'
                            'then click Search.'
                            '\n-Results will display in the boxes below.'
-                           '\n-If searching for an engine, please \nprovide at'
-                           ' least a "Make" parameter. The \nmore parameters '
-                           'that are entered, the \nfaster the API call will '
-                           'be.'
+                           '\n-If searching for an engine, please provide at'
+                           ' least a "Make" parameter. The more parameters '
+                           'that are entered, the faster the API call will be.'
+                           '\n-Please ensure your spelling is correct or the '
+                           'functions will not work.'
                            '\n\nNotes:'
-                           '\nThe results are only as accurate as the \ninfo '
-                           'provided by the Pull and Save \nwebsites and the '
-                           'NHSTA API. Some search \nresults may not be truly '
-                           'accurate to what \nis actually in the yard.'
+                           '\nThe results are only as accurate as the info '
+                           'provided by the Pull and Save websites and the '
+                           'NHSTA API. Some search results may not be truly '
+                           'accurate to what is actually in the yard.For '
+                           'example, the NHSTA API hardly ever gives a '
+                           'cylinder count for Subaru VINS, so searching '
+                           '"Subaru 4cyl" wont pull up all of the 4 cylinder '
+                           'Subarus in the inventory.'
                            )
 
         # Menu bar
         self.menu_bar()
         # Main Grid
         self.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-        self.rowconfigure((0, 1, 2, 3, 4), weight=1)
+        self.rowconfigure((0, 1, 2), weight=1)
 
         # Widgets
         self.search_frame()
@@ -180,7 +186,7 @@ class App(ctk.CTk):
         self.srch_frame.grid(row=0,
                              column=0,
                              columnspan=3,
-                             rowspan=2,
+                             rowspan=1,
                              sticky='nsew',
                              padx=2,
                              pady=5
@@ -289,114 +295,104 @@ class App(ctk.CTk):
                              )
 
     def display_frame(self):
-        self.text_display = ctk.CTkTextbox(self)
+        self.text_display = ctk.CTkTextbox(self, wrap='word')
         self.text_display.configure(font=('Consolas', 12))
         self.text_display.insert('1.0', self.how_to_use)
         self.text_display.configure(state=tk.DISABLED)
         self.text_display.grid(row=0,
                                column=3,
                                columnspan=3,
-                               rowspan=2,
+                               rowspan=1,
                                padx=10,
                                pady=5,
                                sticky='nsew'
                                )
 
     def spokane_frame(self):
-        frame = tk.LabelFrame(self, text='Spokane Inventory')
-        frame.grid(row=2,
-                   column=0,
-                   columnspan=3,
-                   rowspan=3,
-                   pady=5,
-                   padx=2,
-                   sticky='nsew')
-        frame.config(height=600,
-                     width=400,
-                     bg="#ededed",
-                     font=('Consolas', 12),
-                     fg='black'
-                     )
-        self.spokane_tv = ttk.Treeview(frame)
+        self.spk_frame = tk.LabelFrame(self, text='Spokane Inventory')
+        self.spk_frame.grid(row=2,
+                            column=0,
+                            columnspan=3,
+                            rowspan=2,
+                            pady=5,
+                            padx=2,
+                            sticky='nsew')
+        self.spk_frame.config(height=400,
+                              width=400,
+                              bg="#ededed",
+                              font=('Consolas', 12),
+                              fg='black'
+                              )
+        self.spokane_tv = ttk.Treeview(self.spk_frame)
         self.spokane_tv.place(relheight=1, relwidth=1)
 
-        treescrolly = tk.Scrollbar(frame, orient='vertical',
-                                   command=self.spokane_tv.yview)
-        treescrollx = tk.Scrollbar(frame, orient='horizontal',
-                                   command=self.spokane_tv.xview)
-        self.spokane_tv.config(xscrollcommand=treescrollx.set,
-                   yscrollcommand=treescrolly.set)
-        treescrollx.pack(side='bottom', fill='x')
-        treescrolly.pack(side='right', fill='y')
-
     def mead_frame(self):
-        frame = tk.LabelFrame(self, text='Mead Inventory')
-        frame.grid(row=2,
-                   column=3,
-                   columnspan=3,
-                   rowspan=3,
-                   padx=4,
-                   pady=5,
-                   sticky='nsew')
-        frame.config(height=600,
-                     width=400,
-                     bg="#ededed",
-                     font=('Consolas', 12),
-                     fg='black'
-                     )
-        self.mead_tv = ttk.Treeview(frame)
+        self.md_frame = tk.LabelFrame(self, text='Mead Inventory')
+        self.md_frame.grid(row=2,
+                           column=3,
+                           columnspan=3,
+                           rowspan=2,
+                           padx=4,
+                           pady=5,
+                           sticky='nsew')
+        self.md_frame.config(height=400,
+                             width=400,
+                             bg="#ededed",
+                             font=('Consolas', 12),
+                             fg='black'
+                             )
+        self.mead_tv = ttk.Treeview(self.md_frame)
         self.mead_tv.place(relheight=1, relwidth=1)
-
-        treescrolly = tk.Scrollbar(frame, orient='vertical',
-                                   command=self.mead_tv.yview)
-        treescrollx = tk.Scrollbar(frame, orient='horizontal',
-                                   command=self.mead_tv.xview)
-        self.mead_tv.config(xscrollcommand=treescrollx.set,
-                   yscrollcommand=treescrolly.set)
-        treescrollx.pack(side='bottom', fill='x')
-        treescrolly.pack(side='right', fill='y')
 
     # -----Functions-----
     def dark_theme_btn_func(self):
-        # threading.Thread(target=self.dark_theme).start()
-        self.update_text_display("Sorry, this feature is not yet available")
+        threading.Thread(target=self.dark_theme).start()
+        # self.update_text_display("Sorry, this feature is not yet available")
 
     def light_theme_btn_func(self):
         threading.Thread(target=self.light_theme).start()
 
     def dark_theme(self):
         ctk.set_appearance_mode('dark')
-        self.text_display.configure(font=('Consolas', 12),
-                                    bg='#333333',
-                                    fg='white'
-                                    )
         self.srch_frame.configure(bg="#333333",
-                                  fg='white')
-        self.file_menu.config(bg='#333333',
-                              fg='white'
-                              )
-        self.view_menu.config(bg='#333333',
-                              fg='white'
-                              )
-        self.theme_menu.config(bg='#333333',
-                               fg='white'
-                               )
+                                  fg='white'
+                                  )
+        self.spk_frame.configure(bg='#242424',
+                                 fg='white'
+                                 )
+        self.md_frame.configure(bg='#242424',
+                                 fg='white'
+                                 )
+        self.file_menu.configure(bg='#333333',
+                                 fg='white'
+                                 )
+        self.view_menu.configure(bg='#333333',
+                                 fg='white'
+                                 )
+        self.theme_menu.configure(bg='#333333',
+                                  fg='white'
+                                  )
 
     def light_theme(self):
         ctk.set_appearance_mode('light')
-        self.text_display.config(font=('Consolas', 12),
-                                 bg='white',
+        self.srch_frame.configure(bg='#ededed',
+                                  fg='black'
+                                  )
+        self.spk_frame.configure(bg='#ededed',
                                  fg='black'
                                  )
-        self.file_menu.config(bg='white',
-                              fg='black'
-                              )
-        self.view_menu.config(bg='white',
-                              fg='black'
-                              )
-        self.theme_menu.config(bg='white',
-                               fg='black'
-                               )
+        self.md_frame.configure(bg='#ededed',
+                                fg='black'
+                                )
+        self.file_menu.configure(bg='white',
+                                 fg='black'
+                                 )
+        self.view_menu.configure(bg='white',
+                                 fg='black'
+                                 )
+        self.theme_menu.configure(bg='white',
+                                  fg='black'
+                                  )
 
     def search_btn_func(self):
         threading.Thread(target=self.search_inventory).start()
@@ -574,10 +570,11 @@ class App(ctk.CTk):
                     make=make_param,
                     model=model_param
                 )
-                mead_search_count = mead_inventory.api_search_count(year=year_param,
-                                                             make=make_param,
-                                                             model=model_param
-                                                             )
+                mead_search_count = mead_inventory.api_search_count(
+                    year=year_param,
+                    make=make_param,
+                    model=model_param
+                )
                 self.update_text_display(
                     f'Sending {spokane_search_count + mead_search_count} '
                     f'items to the NHTSA API\nThis may take a few moments...'
@@ -606,7 +603,9 @@ class App(ctk.CTk):
                 self.spokane_tv.heading(column, text=column)
                 self.spokane_tv.column(column,
                                        width=tk.font.Font().measure(column))
-                self.spokane_tv.column('Vin', width=115)
+                self.spokane_tv.column('Vin', width=132)
+                self.spokane_tv.column('Row', width=35)
+                self.spokane_tv.column('Year', width=36)
 
             spokane_df_rows = spokane_results.to_numpy().tolist()
             for row in spokane_df_rows:
@@ -619,7 +618,9 @@ class App(ctk.CTk):
                 self.mead_tv.heading(column, text=column)
                 self.mead_tv.column(column,
                                     width=tk.font.Font().measure(column))
-                self.mead_tv.column('Vin', width=115)
+                self.mead_tv.column('Vin', width=132)
+                self.mead_tv.column('Row', width=35)
+                self.mead_tv.column('Year', width=36)
 
             mead_df_rows = mead_results.to_numpy().tolist()
             for row in mead_df_rows:
@@ -630,7 +631,7 @@ class App(ctk.CTk):
 
             if year_param and make_param and model_param and displacement_param and cylinders_param:
                 self.update_text_display(
-                    f'Found {spokane_count+mead_count} instances of '
+                    f'Found {spokane_count + mead_count} instances of '
                     f'{year_param} {make_param} {model_param} '
                     f'{displacement_param}L {cylinders_param}cyl'
                     f'\n{spokane_count} in Spokane'
@@ -782,7 +783,7 @@ class App(ctk.CTk):
         if count_lines(self.text_display) < 4:
             self.text_display.delete(3.0, tk.END)
         else:
-            self.text_display.delete(9.0, tk.END)
+            self.text_display.delete(10.0, tk.END)
         self.text_display.insert(tk.END, content)
 
 
@@ -1189,5 +1190,3 @@ class Inventory:
         elif model:
             results = self.inventory[self.inventory['Model'] == model]
             return results.shape[0]
-
-
