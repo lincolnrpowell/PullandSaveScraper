@@ -3,3 +3,6 @@
 /__pycache__/
 /data_cache/
 /ruff.toml
+/test_code.py
+/test_cache/
+/testGUI.py
