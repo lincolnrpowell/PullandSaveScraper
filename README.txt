@@ -22,13 +22,12 @@ is in along with other useful data like the VIN.
 HOW TO USE:
 Run the main.py file to open the User Interface. Then click "File" and select
 "Update Inventory" to scrape the latest data from the Pull and save websites.
-Then input your desired arguments into the Year, Make, Model, and/or Engine
-entry boxes to search through the inventory. Note that the "Engine" parameter
-needs at least a "Make" parameter input along with it to work. Hit the "Clear"
-button to delete the search parameters and results display.
+Then input your desired arguments into the Year, Make, Model, Liters, and/or
+Cylinders entry boxes to search through the inventory. Note that the "Engine"
+parameter needs at least a "Make" parameter input along with it to work.
 
 To change the theme of the UI, goto View > Change theme and select between dark
-theme and light theme.
+theme and light theme.(This feature is currently not working)
 
 Updates:
 
