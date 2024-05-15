@@ -32,6 +32,12 @@ theme and light theme.
 
 Updates:
 
+5/14/24
+-GUI updated
+-Added cylinder count as a search parameter
+-Added Engine model as a result
+*Theme change not working at the moment
+
 5/2/24
 -Updated the "How to use" instruction in the UI
 -Added a display update if no inventory file path is found when searching
